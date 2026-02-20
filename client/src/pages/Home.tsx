@@ -2,7 +2,7 @@ import BlogList from "@/components/BlogList"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import NavBar from "@/components/NavBar"
-import Newsletter from "@/components/NewsLetter"
+import Newsletter from "@/components/Newsletter"
 
 
 function Home() {
