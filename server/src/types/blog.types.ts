@@ -1,3 +1,6 @@
+import { Types } from "mongoose"
+
+
 export interface BlogTypes {
     title:string,
     subTitel:string,
@@ -14,4 +17,13 @@ export interface Blog {
     description:string,
     category:string,
     isPublished:boolean,
+}
+
+export interface IComment {
+    blog:Types.ObjectId,
+    name:string,
+    content:string,
+    isApproved:boolean,
+    createdAt:Date,
+    updatedAt:Date
 }

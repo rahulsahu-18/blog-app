@@ -100,7 +100,7 @@ const Blog = () => {
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   ) : <div>Loading...</div>
 }

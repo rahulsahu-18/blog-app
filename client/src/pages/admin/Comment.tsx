@@ -48,10 +48,10 @@ rounded-lg scrollbar-hide"
           </thead>
           <tbody>
             {
-              comments.filter((comment)=>{
+              comments.filter((comment: any)=>{
                  if(filter === 'Approved') return comment.isApproved === true;
                  return comment.isApproved === false;
-              }).map((comment,index) => <CommentTableItem key={comment._id} fetchComment={fetchComment} comment={comment} />)
+              }).map((comment: any) => <CommentTableItem key={comment._id} comment={comment} />)
             }
           </tbody>
         </table>
