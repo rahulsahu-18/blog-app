@@ -3,16 +3,19 @@ import { useEffect, useRef, useState } from "react";
 import Quill from "quill";
 
 function AddBlog() {
-  const [image, setImage] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [subTitle, setSubTitle] = useState("");
   const [category, setCategory] = useState("Startup");
   const [isPublished, setIsPublished] = useState(false);
 
   const editorRef = useRef(null);
-  const quillRef = useRef(null);
+  const quillRef = useRef<Quill | null>(null);
 
-  const onSubmitHandler = () => {};
+  const onSubmitHandler = () => {
+    console.log({ image, title, subTitle, category, isPublished });
+    // TODO: Send form data to backend
+  };
   const generateContent = () => {};
 
   useEffect(() => {
@@ -25,16 +28,16 @@ function AddBlog() {
       onSubmit={onSubmitHandler}
       className="flex-1 bg-blue-50/50 text-gray-600 h-full overflow-scroll"
     >
-      <div className="bg-white w-full max-w-3xl p-4 md: p-10 sm:m-10 shadow rounded">
+      <div className="bg-white w-full max-w-3xl md:p-10 sm:m-10 shadow rounded">
         <p>Upload thumbnail</p>
         <label htmlFor="image">
           <img
-            src={!image ? assets.upload_area : URL.createObjectURL(image)}
+            src={image ? URL.createObjectURL(image) : assets.upload_area}
             alt=""
             className="mt-2 h-16 rounded cursor-pointer"
           />
           <input
-            onChange={(e) => setImage(e.target.files[0])}
+            onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
             type="file"
             id="image"
             hidden

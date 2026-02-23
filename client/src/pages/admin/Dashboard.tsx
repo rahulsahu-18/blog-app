@@ -82,7 +82,7 @@ scrollbar-hide bg-white"
               </tr>
             </thead>
              <tbody>
-                {dashboardData.recentBlogs.map((blog,index)=>{
+                {dashboardData.recentBlogs.map((blog: any, index: number) => {
                   return <BlogTableItem key={blog._id} Blog={blog} index={index+1} fetchBlogs={fetchDashboardData}/>
                 })}
              </tbody>

@@ -41,7 +41,7 @@ scrollbar-hide bg-white"
               </tr>
             </thead>
              <tbody>
-                {blogs.map((blog,index)=>{
+                {blogs.map((blog: any, index: number)=>{
                   return <BlogTableItem key={blog._id} Blog={blog} index={index+1} fetchBlogs={fetchBlog}/>
                 })}
              </tbody>
