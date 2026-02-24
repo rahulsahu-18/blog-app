@@ -3,7 +3,7 @@ import { Types } from "mongoose"
 
 export interface BlogTypes {
     title:string,
-    subTitel:string,
+    subTitle:string,
     description:string,
     category:string,
     image:string,
@@ -13,7 +13,7 @@ export interface BlogTypes {
 
 export interface Blog {
     title:string,
-    subTitel:string,
+    subTitle:string,
     description:string,
     category:string,
     isPublished:boolean,

@@ -1,7 +1,16 @@
 
+import { useState } from "react";
 import { assets } from "../assets/assets";
+import { useDispatch } from "react-redux";
+import { inputText } from "@/store/slice/loginSlice";
 
 const Header = () => {
+    const dispatch = useDispatch();
+    const [input,setInput] = useState<string>('');
+    const handleSubmit = (e:React.FormEvent<HTMLFormElement>)=>{
+        e.preventDefault()
+         dispatch(inputText(input))
+    }
     return (
         <div className="mx-8 sm:mx-16 xl:mx-24 relative">
 
@@ -36,10 +45,12 @@ const Header = () => {
 
 
                 <form className="flex justify-between max-w-lg max-sm:scale-75 mx-auto
-        border border-gray-300 bg-white rounded overflow-hidden">
+        border border-gray-300 bg-white rounded overflow-hidden" onSubmit={handleSubmit}>
 
                     <input
                         type="text"
+                        value={input}
+                        onChange={(e)=>setInput(e.target.value)}
                         placeholder="Search for blogs"
                         required
                         className="w-full pl-4 outline-none"

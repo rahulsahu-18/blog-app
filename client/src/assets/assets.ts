@@ -59,18 +59,6 @@ export const assets = {
     dashboard_icon_4,
 }
 export const blogCategories = ['All', 'Technology', 'Startup', 'Lifestyle', 'Finance']
-export type Blog = {
-  _id: string;
-  title: string;
-  description: string;
-  category: string;
-  image: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-  isPublished: boolean;
-  subTitle: string;
-};
 
 
 export const blog_data = [

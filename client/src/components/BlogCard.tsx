@@ -1,5 +1,5 @@
+import type { Blog } from "@/vite-env";
 import { useNavigate } from "react-router-dom";
-import type { Blog } from "../assets/assets";
 
 interface BlogCardProps {
   blog: Blog;

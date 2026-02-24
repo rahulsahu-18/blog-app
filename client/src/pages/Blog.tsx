@@ -1,108 +1,195 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { assets, blog_data, comments_data } from '../assets/assets'
-import Moment from 'moment'
-import NavBar from '../components/NavBar'
-import Footer from '@/components/Footer'
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { assets } from "../assets/assets";
+import Moment from "moment";
+import NavBar from "../components/NavBar";
+import Footer from "@/components/Footer";
+import toast from "react-hot-toast";
+import {
+  useAddCommentMutation,
+  useGetBlogByIdQuery,
+  useGetcommentQuery,
+} from "@/store/slice/api";
 
 const Blog = () => {
+  const { id } = useParams<{ id: string }>();
 
-  const { id } = useParams()
+  // 🔥 Blog Fetch
+  const { data, isLoading, error } = useGetBlogByIdQuery(id!, {
+    skip: !id,
+  });
 
-  const [data, setData] = useState<any>(null)
-  const [comments, setComments] = useState<any[]>([])
-  const [name, setName] = useState('');
-  const [content, setContent] = useState('');
+  // 🔥 Comments Fetch
+  const { data: commentData, isLoading: commentLoading } =
+    useGetcommentQuery(id!, { skip: !id });
 
+  const comments = commentData?.comments || [];
 
-  const fetchBlogData = async () => {
-    const data = blog_data.find(item => item._id === id)
-    setData(data)
-  }
-  const fetchComments = async () => {
-    setComments(comments_data)
-  }
-  const addComment = async (e: any) => {
+  // 🔥 Mutation
+  const [addComment, { isLoading: isSubmitting }] =
+    useAddCommentMutation();
+
+  const [name, setName] = useState("");
+  const [content, setContent] = useState("");
+
+  // ✅ Proper Submit Handler
+  const handleAddComment = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
-  }
-  useEffect(() => {
-    fetchBlogData()
-    fetchComments()
-  }, [])
 
-  return data ? (
-    <div className='relative'>
-      <img src={assets.gradientBackground} alt="" className='absolute -top-50 -z-1 opacity-50' />
+    if (!id) return;
+
+    try {
+      const res = await addComment({
+        blog: id,
+        name,
+        content,
+      }).unwrap();
+
+      if (res.success) {
+        toast.success(res.message);   // 🔥 SUCCESS TOAST
+        setName("");
+        setContent("");
+      }
+    } catch (err: any) {
+      toast.error("Something went wrong");
+    }
+  };
+
+  if (isLoading)
+    return <div className="mt-40 text-center">Loading...</div>;
+
+  if (error || !data?.blog)
+    return <div className="mt-40 text-center">Blog not found</div>;
+
+  const blog = data.blog;
+
+  return (
+    <div className="relative">
+      <img
+        src={assets.gradientBackground}
+        alt=""
+        className="absolute -top-50 -z-10 opacity-50"
+      />
 
       <NavBar />
 
-      <div className='text-center mt-20 text-gray-600'>
-        <p className='text-primary py-4 font-medium'>
-          Published on {Moment(data.createdAt).format("MMMM DD, YYYY")}
+      {/* Header Section */}
+      <div className="text-center mt-24 text-gray-600 px-4">
+        <p className="text-primary py-4 font-medium">
+          Published on {Moment(blog.createdAt).format("MMMM DD, YYYY")}
         </p>
 
-        <h1 className='text-2xl sm:text-5xl font-semibold max-w-2xl mx-auto text-gray-800'>
-          {data.title}
+        <h1 className="text-3xl sm:text-6xl font-semibold max-w-3xl mx-auto text-gray-800 leading-tight">
+          {blog.title}
         </h1>
 
-        <h2 className='my-5 max-w-lg truncate mx-auto'>
-          {data.subTitle}
+        <h2 className="my-6 max-w-2xl mx-auto text-lg text-gray-500">
+          {blog.subTitel}
         </h2>
 
-        <p className='inline-block py-1 px-4 rounded-full mb-6 border text-sm border-primary/35 bg-primary/5 font-medium text-primary'>
-          Michael Brown
+        <p className="inline-block py-1 px-5 rounded-full mb-10 border text-sm border-primary/35 bg-primary/5 font-medium text-primary">
+          {blog.category}
         </p>
       </div>
-      {/* Add image & desc Section */}
-      <div className='mx-5 max-w-5xl md:mx-auto my-10 mt-6'>
-        <img src={data.image} alt="" className='rounded-3xl mb-5' />
 
-        <div className='rich-text max-w-3xl mx-auto' dangerouslySetInnerHTML=
-          {{ __html: data.description }}></div>
-        <div className='mt-14 mb-10 max-w-3xl mx-auto'>
-          <p className='font-semibold mb-10'>Comments ({comments.length})</p>
-          <div className='flex flex-col gap-4'>
-            {comments.map((item, index) => (
-              <div key={index} className='relative bg-primary/2 border border-primary/5 max-w-xl p-4 rounded text-gray-600'>
-                <div className='flex items-center gap-2 mb-2'>
-                  <img src={assets.user_icon} alt="" className='w-6' />
-                  <p className='font-medium'>{item.name}</p>
+      {/* Hero Image */}
+      <div className="max-w-6xl mx-auto px-5">
+        <img
+          src={blog.image}
+          alt=""
+          className="w-full h-[500px] object-cover rounded-3xl mb-12 shadow-lg"
+        />
+      </div>
+
+      {/* Description */}
+      <div className="max-w-4xl mx-auto px-6">
+        <div
+          className="rich-text text-gray-700 leading-8 text-lg"
+          dangerouslySetInnerHTML={{ __html: blog.description }}
+        />
+      </div>
+
+      {/* Comments Section */}
+      <div className="mt-20 mb-10 max-w-3xl mx-auto px-6">
+        <p className="font-semibold mb-8 text-xl">
+          Comments ({comments.length})
+        </p>
+
+        {commentLoading && (
+          <p className="text-gray-500">Loading comments...</p>
+        )}
+
+        <div className="flex flex-col gap-4">
+          {comments
+            .filter((item: any) => item.isApproved)
+            .map((item: any) => (
+              <div
+                key={item._id}
+                className="relative bg-primary/2 border border-primary/5 max-w-xl p-4 rounded text-gray-600"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <img
+                    src={assets.user_icon}
+                    alt=""
+                    className="w-6"
+                  />
+                  <p className="font-medium">{item.name}</p>
                 </div>
 
-                <p className='text-sm max-w-md ml-8'>{item.content}</p>
+                <p className="text-sm max-w-md ml-8">
+                  {item.content}
+                </p>
 
-                <div className='absolute right-4 bottom-3 flex items-center gap-2 text-xs'>
+                <div className="absolute right-4 bottom-3 text-xs">
                   {Moment(item.createdAt).fromNow()}
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-        {/* Add Comment Section */}
-        <div className='max-w-3xl mx-auto'>
-          <p className='font-semibold mb-4'>Add your comment</p>
-          <form onSubmit={addComment} className='flex flex-col items-start gap-4 max-w-lg'>
-
-            <input onChange={(e) => setName(e.target.value)} value={name} type="text" placeholder='Name' required className='w-full p-2 border border-gray-300 rounded outline-none' />
-
-            <textarea onChange={(e) => setContent(e.target.value)} value={content} placeholder='Comment' className='w-full p-2 border border-gray-300 rounded outline-none h-48' required></textarea>
-
-            <button type="submit" className='bg-(--color-primary) text-white rounded p-2 px-8 hover:scale-102 transition-all cursor-pointer'>Submit</button>
-          </form>
-        </div>
-        {/* Share Buttons */}
-        <div className='my-24 max-w-3xl mx-auto'>
-          <p className='font-semibold my-4'>Share this article on social media</p>
-          <div className='flex'>
-            <img src={assets.facebook_icon} width={50} alt="" />
-            <img src={assets.twitter_icon} width={50} alt="" />
-            <img src={assets.googleplus_icon} width={50} alt="" />
-          </div>
         </div>
       </div>
+
+      {/* Add Comment */}
+      <div className="max-w-3xl mx-auto px-6 mb-20">
+        <p className="font-semibold mb-4 text-lg">
+          Add your comment
+        </p>
+
+        <form
+          onSubmit={handleAddComment}
+          className="flex flex-col gap-4 max-w-lg"
+        >
+          <input
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+            type="text"
+            placeholder="Name"
+            required
+            className="w-full p-3 border border-gray-300 rounded outline-none"
+          />
+
+          <textarea
+            onChange={(e) => setContent(e.target.value)}
+            value={content}
+            placeholder="Comment"
+            required
+            className="w-full p-3 border border-gray-300 rounded outline-none h-40"
+          />
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-(--color-primary) text-white rounded p-3 px-8 hover:scale-105 transition-all cursor-pointer"
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </button>
+        </form>
+      </div>
+
       <Footer />
     </div>
-  ) : <div>Loading...</div>
-}
+  );
+};
 
-export default Blog
+export default Blog;

@@ -6,7 +6,7 @@ import Comment from "../models/commentModel";
 
 export const addBlog = async (req: Request, res: Response) => {
   try {
-    const { title, subTitel, description, category, isPublished } =
+    const { title, subTitle, description, category, isPublished } =
       req.body as Blog;
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
@@ -14,7 +14,7 @@ export const addBlog = async (req: Request, res: Response) => {
     const imageFile = req.file;
     if (
       !imageFile ||
-      !subTitel ||
+      !subTitle ||
       !title ||
       !description ||
       !category ||
@@ -32,7 +32,7 @@ export const addBlog = async (req: Request, res: Response) => {
     const fileId = result.fileId;
     await blogModel.create({
       title,
-      subTitel,
+      subTitle,
       description,
       category,
       image: result.url,
@@ -52,7 +52,7 @@ export const addBlog = async (req: Request, res: Response) => {
 
 export const getAllBlog = async (req: Request, res: Response) => {
   try {
-    const allBlog = await blogModel.find({ isPublished: true });
+    const allBlog = await blogModel.find({ isPublished: true }).select("-fileId -__v");
     return res.status(200).json({ success: true, allBlog });
   } catch (error) {
     return res
@@ -65,7 +65,7 @@ export const getBlogbyId = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const blog = await blogModel.findById(id);
+    const blog = await blogModel.findById(id).select("-fileId -__v");
     if (!blog) {
       return res
         .status(400)
@@ -123,7 +123,7 @@ export const addComment = async (req: Request, res: Response) => {
 }
 
 export const getBlogComments = async (req: Request, res: Response) => {
-  const { blogId } = req.body;
+  const { blogId } = req.params;
   try {
     const comments = await Comment.find({ blog: blogId, isApproved: true }).sort({ createdAt: -1 });
     res.json({ comments, success: true })

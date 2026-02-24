@@ -1,10 +1,26 @@
+import { useLoginAdminMutation } from "@/store/slice/api";
+import { updateIsLogin } from "@/store/slice/loginSlice";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
 
 function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const dispatch = useDispatch();
+   const [loginAdmin,{isLoading}] = useLoginAdminMutation();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-  const handleSubmit = () => {};
+  try {
+    const response = await loginAdmin({ email, password }).unwrap();
+
+    dispatch(updateIsLogin(true));
+    toast.success(response.message);
+  } catch (err: any) {
+    toast.error(err?.data?.message || "Login failed");
+  }
+};
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="w-fullvmax-w-sm p-6 max-md:m-6 border border-(--color-primary)/30 shadow-xl shadow-(--color-primary)/15 rounded-lg">
@@ -46,8 +62,7 @@ function Login() {
 text-white rounded cursor-pointer hover:bg-(--color-primary)/90
 transition-all"
             >
-              {" "}
-              Login{" "}
+            {isLoading ? "hacking nasa..." : "Login"}
             </button>
           </form>
         </div>
