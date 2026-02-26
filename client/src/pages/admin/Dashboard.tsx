@@ -1,94 +1,92 @@
-import { assets, dashboard_data } from "@/assets/assets";
+import { assets } from "@/assets/assets";
 import BlogTableItem from "@/components/admin/BlogTableItem";
-import { useEffect, useState } from "react";
+import { useGetAdminQuery } from "@/store/slice/api";
+import type { Blog } from "@/vite-env";
 
 function Dashboard() {
-  const [dashboardData, setDashBoardData] = useState<any>({
-    blogs: 0,
-    drafts: 0,
-    comments: 0,
-    recentBlogs: [],
-  });
+  const { data, isLoading, error } = useGetAdminQuery();
+const fetch = () => {}
+  if (isLoading) {
+    return <div className="p-10">Loading...</div>;
+  }
 
-  const fetchDashboardData = () => {
-    setDashBoardData(dashboard_data);
-  };
+  if (error) {
+    return <div className="p-10 text-red-500">Something went wrong</div>;
+  }
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  const dashboardData = data?.dashboardData;
+
   return (
     <div className="flex-1 p-4 md:p-10 bg-blue-50/50">
       <div className="flex flex-wrap gap-4">
-        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow cursor-pointer hover: scale-105 transition-all">
+
+        {/* Blogs */}
+        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow hover:scale-105 transition-all">
           <img src={assets.dashboard_icon_1} alt="" />
           <div>
-            <p className="text-x1 font-semibold text-gray-600">
-              {dashboardData.blogs}
+            <p className="text-xl font-semibold text-gray-600">
+              {dashboardData?.blogs}
             </p>
             <p className="text-gray-400 font-light">Blogs</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow cursor-pointer hover: scale-105 transition-all">
+        {/* Comments */}
+        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow hover:scale-105 transition-all">
           <img src={assets.dashboard_icon_2} alt="" />
           <div>
-            <p className="text-x1 font-semibold text-gray-600">
-              {dashboardData.comments}
+            <p className="text-xl font-semibold text-gray-600">
+              {dashboardData?.comments}
             </p>
             <p className="text-gray-400 font-light">Comments</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow cursor-pointer hover: scale-105 transition-all">
+        {/* Drafts */}
+        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow hover:scale-105 transition-all">
           <img src={assets.dashboard_icon_3} alt="" />
           <div>
-            <p className="text-x1 font-semibold text-gray-600">
-              {dashboardData.drafts}
+            <p className="text-xl font-semibold text-gray-600">
+              {dashboardData?.drafts}
             </p>
             <p className="text-gray-400 font-light">Drafts</p>
           </div>
         </div>
       </div>
 
+      {/* Latest Blogs */}
       <div>
         <div className="flex items-center gap-3 m-4 mt-6 text-gray-600">
           <img src={assets.dashboard_icon_4} alt="" />
           <p>Latest Blogs</p>
         </div>
 
-        <div
-          className="relative max-w-4x1 overflow-x-auto shadow rounded-1g
-scrollbar-hide bg-white"
-        >
+        <div className="relative max-w-4xl overflow-x-auto shadow rounded-lg bg-white">
           <table className="w-full text-sm text-gray-500">
             <thead className="text-xs text-gray-600 text-left uppercase">
               <tr>
-                <th scope="col" className="px-2 py-4 xl:px-6">
-                  #
-                </th>
-                <th scope="col" className="px-2 py-4">
-                  Blog Title
-                </th>
-                <th scope="col" className="px-2 py-4 max-sm:hidden">
-                  Date
-                </th>
-                <th scope="col" className="px-2 py-4 max-sm:hidden">
-                  Status
-                </th>
-                <th scope="col" className="px-2 py-4">
-                  Actions
-                </th>
+                <th className="px-2 py-4 xl:px-6">#</th>
+                <th className="px-2 py-4">Blog Title</th>
+                <th className="px-2 py-4 max-sm:hidden">Date</th>
+                <th className="px-2 py-4 max-sm:hidden">Status</th>
+                <th className="px-2 py-4">Actions</th>
               </tr>
             </thead>
-             <tbody>
-                {dashboardData.recentBlogs.map((blog: any, index: number) => {
-                  return <BlogTableItem key={blog._id} Blog={blog} index={index+1} fetchBlogs={fetchDashboardData}/>
-                })}
-             </tbody>
+
+            <tbody>
+              {dashboardData?.recentBlogs.map(
+                (blog: Blog, index: number) => (
+                  <BlogTableItem
+                    key={blog._id}
+                    Blog={blog}
+                    fetchBlogs={fetch}
+                    index={index + 1}
+                  />
+                )
+              )}
+            </tbody>
           </table>
         </div>
-
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ export const login = async (req:Request,res:Response) => {
 
 export const getAllBlogsAdmin = async (req:Request,res:Response) =>{
   try {
-    const blogs = await blogModel.find({}).sort({createdAt: -1});
+    const blogs = await blogModel.find({}, { fileId: 0, __v: 0 }).sort({ createdAt: -1 });
     res.json({success: true, blogs})
   } catch (error) {
     res.json({success: false, message: "something went wrong while get all the blogs for admin"})
@@ -63,9 +63,9 @@ export const getDashboard = async (req:Request,res:Response) =>{
 
 export const deleteCommentById = async (req:Request,res:Response) =>{
   try {
-    const {id} = req.body;
+    const {id} = req.params;
     await Comment.findByIdAndDelete(id);
-    res.json({success: true, message:"Comment deleted successfully" })
+    res.status(200).json({success: true, message:"Comment deleted successfully" })
   } catch (error) {
     res.json({success: false, message: "something went wrong while delete comment by its id"})
   }

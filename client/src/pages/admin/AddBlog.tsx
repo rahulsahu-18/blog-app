@@ -1,6 +1,8 @@
 import { assets, blogCategories } from "@/assets/assets";
 import { useEffect, useRef, useState } from "react";
 import Quill from "quill";
+import { useAddBlogMutation } from "@/store/slice/api";
+import toast from "react-hot-toast";
 
 function AddBlog() {
   const [image, setImage] = useState<File | null>(null);
@@ -11,11 +13,44 @@ function AddBlog() {
 
   const editorRef = useRef(null);
   const quillRef = useRef<Quill | null>(null);
+ const [addBlog, { isLoading }] = useAddBlogMutation();
 
-  const onSubmitHandler = () => {
-    console.log({ image, title, subTitle, category, isPublished });
-    // TODO: Send form data to backend
-  };
+  const onSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+
+  if (!image){
+    toast.error('add thumbnill image');
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+
+    // 🔥 Quill content
+    const description = quillRef.current?.root.innerHTML || "";
+
+    formData.append("title", title);
+    formData.append("subTitle", subTitle);
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("isPublished", String(isPublished));
+    formData.append("image", image);
+
+    const res = await addBlog(formData).unwrap();
+    toast.success(res.message);
+
+    // Optional reset
+    setTitle("");
+    setSubTitle("");
+    setCategory("Startup");
+    setIsPublished(false);
+    setImage(null);
+    quillRef.current?.setText("");
+
+  } catch (error) {
+    toast.success("something went worng");
+  }
+};
   const generateContent = () => {};
 
   useEffect(() => {
@@ -105,7 +140,7 @@ cursor-pointer"
           />
         </div>
         <button type="submit" className='mt-8 w-40 h-10 bg-(--color-primary) text-white
-rounded cursor-pointer text-sm'>Add Blog</button>
+rounded cursor-pointer text-sm'>{isLoading ? "Adding...": "Add blog"}</button>
       </div>
     </form>
   );

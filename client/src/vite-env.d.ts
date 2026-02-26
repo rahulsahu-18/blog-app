@@ -19,7 +19,7 @@ interface DashboardData {
 
 interface Icomment {
   _id: string;
-  blog: string;      
+  blog: Blog;      
   name: string;     
   content: string;  
   isApproved: boolean;

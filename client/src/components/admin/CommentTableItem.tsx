@@ -1,12 +1,43 @@
-import type { FC } from "react";
 import { assets } from "@/assets/assets";
+import {
+  useApproveCommentMutation,
+  useDeleteCommentMutation,
+} from "@/store/slice/api";
+import type { Icomment } from "@/vite-env";
+import toast from "react-hot-toast";
 
+interface Props {
+  comment: Icomment;
+}
 
-const CommentTableItem = ({ comment }) => {
+const CommentTableItem = ({ comment }: Props) => {
   const { blog, createdAt } = comment;
-  const BlogDate = new Date(createdAt);
+
+  const BlogDate = createdAt ? new Date(createdAt) : null;
+
+  const [approveComment] = useApproveCommentMutation();
+  const [deleteComment] = useDeleteCommentMutation();
+
+  const handleApprove = async () => {
+    try {
+    const result = await approveComment(comment._id).unwrap();
+    toast.success(result.message);
+    } catch (error) {
+      toast.error('something went worng')
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+    const result = await deleteComment(comment._id).unwrap();
+    toast.success(result.message);
+    } catch (error) {
+      toast.error('something went worng')
+    }
+  };
+
   return (
-    <tr className="order-y border-gray-300">
+    <tr className="border-y border-gray-300">
       <td className="px-6 py-4">
         <b>Blog</b> : {blog.title}
         <br />
@@ -15,15 +46,31 @@ const CommentTableItem = ({ comment }) => {
         <br />
         <b className="font-medium text-gray-600">Comment</b> : {comment.content}
       </td>
-      <td className="px-6 py-4 max-sm: hidden">
-        {BlogDate.toLocaleDateString()}
+
+      {/* ✅ Date fixed */}
+      <td className="px-6 py-4 max-sm:hidden">
+        {BlogDate ? BlogDate.toLocaleDateString() : "No Date"}
       </td>
+
       <td className="px-6 py-4">
-        <div>
+        <div className="flex gap-3 items-center">
           {!comment.isApproved ? (
-            <img src={assets.tick_icon} className="w-5 hover:scale-110 transition-all cursor-pointer" />
-          ) : <p className="text-xs border border-green-600 bg-green-100 text-green-600 rounded-full px-3 py-1">Approved</p>}
-          <img src={assets.bin_icon} alt="" className="w-5 hover:scale-110 transition-all cursor-pointer"/>
+            <img
+              onClick={handleApprove}
+              src={assets.tick_icon}
+              className="w-5 hover:scale-110 transition-all cursor-pointer"
+            />
+          ) : (
+            <p className="text-xs border border-green-600 bg-green-100 text-green-600 rounded-full px-3 py-1">
+              Approved
+            </p>
+          )}
+
+          <img
+            onClick={handleDelete}
+            src={assets.bin_icon}
+            className="w-5 hover:scale-110 transition-all cursor-pointer"
+          />
         </div>
       </td>
     </tr>

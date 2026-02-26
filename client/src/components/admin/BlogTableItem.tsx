@@ -1,14 +1,37 @@
 import { assets } from "@/assets/assets";
+import { useDeleteBlogMutation, useTogglePublishMutation } from "@/store/slice/api";
+import type { Blog } from "@/vite-env";
+import toast from "react-hot-toast";
 
 interface BlogTableItemProps {
-  Blog: any;
+  Blog: Blog;
   fetchBlogs: () => void;
   index: number;
 }
 
 function BlogTableItem({ Blog, index, fetchBlogs }: BlogTableItemProps) {
-  const { title, createdAt, isPublished } = Blog;
+  const { title, createdAt, isPublished,_id } = Blog;
   const blogDate = new Date(createdAt);
+  const [deleteBlog] = useDeleteBlogMutation();
+  const [togglePublish] = useTogglePublishMutation(); 
+const handleDelete = async (blogId:string)=> {
+  try {
+    const result = await deleteBlog(blogId).unwrap();
+    toast.success(result.message);
+  } catch (error) {
+    toast.success("something went worng while delete the blog");
+  }
+}
+const handlePublish = async (blogId:string)=>{
+   try {
+    const result = await togglePublish(blogId).unwrap();
+    toast.success(result.message);
+   } catch (error) {
+    toast.error('something went worng');
+   }
+}
+
+
   return (
     <tr className="border-y border-gray-300">
       <th className="px-2 py-4">{index}</th>
@@ -20,7 +43,7 @@ function BlogTableItem({ Blog, index, fetchBlogs }: BlogTableItemProps) {
         </p>
       </td>
       <td className="px-2 py-4 flex text-xs gap-3">
-        <button className="border px-2 py-0.5 mt-1 rounded cursor-pointer">
+        <button className="border px-2 py-0.5 mt-1 rounded cursor-pointer" onClick={()=>handlePublish(_id)}>
           {isPublished ? "Unpublish" : "Publish"}
         </button>
         <img
@@ -28,6 +51,7 @@ function BlogTableItem({ Blog, index, fetchBlogs }: BlogTableItemProps) {
           className="w-8 hover: scale-110 transition-all
 cursor-pointer"
           alt=""
+          onClick={()=>handleDelete(_id)}
         />
       </td>
     </tr>

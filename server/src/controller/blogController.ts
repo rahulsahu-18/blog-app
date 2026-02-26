@@ -90,7 +90,7 @@ export const deleteBlog = async (req: Request, res: Response) => {
     await Comment.deleteMany({blog:id});
 
     await blogModel.findByIdAndDelete(id);
-    return res.status(400).json({ message: "delete successfull", success: false });
+    return res.status(200).json({ message: "delete successfull", success: false });
   } catch (error) {
     return res.status(400).json({ message: "error occourd while delete the blog", success: false });
   }
@@ -98,17 +98,18 @@ export const deleteBlog = async (req: Request, res: Response) => {
 
 export const toggleIspublished = async (req: Request, res: Response) => {
   const { id } = req.params;
-
+  let isUnpublish;
   try {
     const blog = await blogModel.findById(id);
     if (!blog) {
-      return res.status(400).json({ message: "blog not found..", success: false });
+      return res.status(200).json({ message: "blog not found..", success: false });
     }
+    isUnpublish = blog.isPublished;
     blog.isPublished = !blog.isPublished;
     await blog.save();
-    return res.status(200).json({ message: "toggle successful", success: true });
+    return res.status(200).json({ message: isUnpublish ? "Unpublish successful" : "Publish successful", success: true });
   } catch (error) {
-    return res.status(400).json({ message: "something went worng while toggle", success: false });
+    return res.status(300).json({ message: "something went worng while toggle", success: false });
   }
 }
 
